@@ -19,7 +19,7 @@ typedef QSharedPointer<EffectSlot> EffectSlotPointer;
 class EffectSlot : public QObject {
     Q_OBJECT
   public:
-    EffectSlot(const unsigned int iRackNumber,
+    EffectSlot(const QString& chainGroup,
                const unsigned int iChainNumber,
                const unsigned int iEffectNumber);
     virtual ~EffectSlot();
@@ -32,6 +32,15 @@ class EffectSlot : public QObject {
             QString::number(iChainNumber+1),
             QString::number(iEffectNumber+1));
 
+    }
+
+    static QString formatGroupString(const QString& effectUnitGroup,
+                                     const unsigned int iEffectNumber) {
+
+        QString group(effectUnitGroup);
+        group.chop(1); // Remove tailing ']'
+        group += QString("_Effect%1]").arg(iEffectNumber+1);
+        return group;
     }
 
     // Return the currently loaded effect, if any. If no effect is loaded,
@@ -96,10 +105,9 @@ class EffectSlot : public QObject {
 
   private:
     QString debugString() const {
-        return QString("EffectSlot(%1,%2)").arg(m_iChainNumber).arg(m_iEffectNumber);
+        return QString("EffectSlot(%1)").arg(m_group);
     }
 
-    const unsigned int m_iRackNumber;
     const unsigned int m_iChainNumber;
     const unsigned int m_iEffectNumber;
     const QString m_group;
@@ -116,7 +124,6 @@ class EffectSlot : public QObject {
     ControlObject* m_pControlEffectSelector;
     ControlObject* m_pControlClear;
     QList<EffectParameterSlotPointer> m_parameters;
-    ControlObjectSlave* m_pCoSuper;
     QList<EffectButtonParameterSlotPointer> m_buttonParameters;
 
     DISALLOW_COPY_AND_ASSIGN(EffectSlot);

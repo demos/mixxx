@@ -21,7 +21,7 @@ class EffectChainSlot : public QObject {
     Q_OBJECT
   public:
     EffectChainSlot(EffectRack* pRack,
-                    const unsigned int iRackNumber,
+                    const QString& group,
                     const unsigned int iChainNumber);
     virtual ~EffectChainSlot();
 
@@ -29,6 +29,15 @@ class EffectChainSlot : public QObject {
                                      const unsigned int iChainNumber) {
         return QString("[EffectRack%1_EffectUnit%2]").arg(
             QString::number(iRackNumber+1), QString::number(iChainNumber+1));
+    }
+
+    static QString formatGroupString(const QString& rackGroup,
+                                     const QString& unitGroup) {
+        QString group = rackGroup;
+        group.chop(1);
+        group += "_";
+        group += unitGroup.mid(1);
+        return group;
     }
 
     // Get the ID of the loaded EffectChain
@@ -117,10 +126,9 @@ class EffectChainSlot : public QObject {
 
   private:
     QString debugString() const {
-        return QString("EffectChainSlot(%1)").arg(m_iChainSlotNumber);
+        return QString("EffectChainSlot(%1)").arg(m_group);
     }
 
-    const unsigned int m_iRackNumber;
     const unsigned int m_iChainSlotNumber;
     const QString m_group;
     EffectRack* m_pEffectRack;

@@ -8,14 +8,12 @@
 // The maximum number of effect parameters we're going to support.
 const unsigned int kDefaultMaxParameters = 8;
 
-EffectSlot::EffectSlot(const QString& effectUnitGroup,
+EffectSlot::EffectSlot(const QString& group,
                        const unsigned int iChainNumber,
                        const unsigned int iEffectnumber)
         : m_iChainNumber(iChainNumber),
           m_iEffectNumber(iEffectnumber),
-          // The control group names are 1-indexed while internally everything
-          // is 0-indexed.
-          m_group(formatGroupString(effectUnitGroup, m_iEffectNumber)) {
+          m_group(group) {
     m_pControlLoaded = new ControlObject(ConfigKey(m_group, "loaded"));
     m_pControlLoaded->connectValueChangeRequest(
         this, SLOT(slotLoaded(double)));
@@ -246,9 +244,9 @@ void EffectSlot::slotClear(double v) {
     }
 }
 
-void EffectSlot::onChainParameterChanged(double parameter) {
+void EffectSlot::onChainParameterChanged(double parameter, bool force) {
     for (int i = 0; i < m_parameters.size(); ++i) {
-        m_parameters[i]->onChainParameterChanged(parameter);
+        m_parameters[i]->onChainParameterChanged(parameter, force);
     }
 }
 

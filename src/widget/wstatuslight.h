@@ -38,6 +38,7 @@ class WStatusLight : public WWidget  {
     virtual ~WStatusLight();
 
     void setup(QDomNode node, const SkinContext& context);
+    QSize sizeHint() const;
 
   public slots:
     void onConnectedControlChanged(double dParameter, double dValue);

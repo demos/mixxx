@@ -82,9 +82,9 @@ void WStatusLight::setPixmap(int iState, PixmapSource source,
     PaintablePointer pPixmap = WPixmapStore::getPaintable(source, mode);
     if (!pPixmap.isNull() && !pPixmap->isNull()) {
         m_pixmaps[iState] = pPixmap;
-        if (mode == Paintable::FIXED) {
-            setFixedSize(pPixmap->size());
-        }
+//        if (mode == Paintable::FIXED) {
+//            setFixedSize(pPixmap->size());
+//        }
     } else {
         qDebug() << "WStatusLight: Error loading pixmap:" << source.getPath() << iState;
         m_pixmaps[iState].clear();
@@ -130,5 +130,27 @@ void WStatusLight::paintEvent(QPaintEvent *) {
         return;
     }
 
-    pPixmap->draw(rect(), &p);
+    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+    if (contentRect.isNull()) {
+        contentRect = rect();
+    }
+    
+    pPixmap->draw(contentRect, &p);
 }
+
+QSize WStatusLight::sizeHint() const {
+    QSize contentSize = WWidget::sizeHint();
+    
+    if (m_iPos >= 0 && m_iPos < m_pixmaps.size()) {
+        PaintablePointer pPixmap = m_pixmaps[m_iPos];
+        if (!pPixmap.isNull() && !pPixmap->isNull()) {
+            contentSize = pPixmap->size();
+        }
+    }
+    
+    QStyleOption option;
+    option.initFrom(this);
+    return style()->sizeFromContents(QStyle::CT_PushButton, &option, contentSize,
+                                     this);
+}
+

@@ -17,6 +17,7 @@
 
 #include <QtDebug>
 #include <QTouchEvent>
+#include <QStyleOption>
 
 #include "widget/wwidget.h"
 #include "controlobjectslave.h"
@@ -94,4 +95,14 @@ bool WWidget::event(QEvent* e) {
     }
 
     return QWidget::event(e);
+}
+
+QRect WWidget::getContentsRect() {
+    QStyleOption option;
+    option.initFrom(this);
+    QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+    if (contentsRect.isNull()) {
+        contentsRect = rect();
+    }
+    return contentsRect;
 }

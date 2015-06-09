@@ -48,6 +48,7 @@ class WWidget : public QWidget, public WBaseWidget {
   protected:
     bool touchIsRightButton();
     bool event(QEvent* e);
+    QRect getContentsRect();
 
     enum Qt::MouseButton m_activeTouchButton;
 

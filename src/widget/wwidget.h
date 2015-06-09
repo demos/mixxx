@@ -21,6 +21,7 @@
 #include <QWidget>
 #include <QEvent>
 #include <QString>
+#include <QStyleOption>
 
 #include "configobject.h"
 #include "widget/wbasewidget.h"
@@ -48,7 +49,7 @@ class WWidget : public QWidget, public WBaseWidget {
   protected:
     bool touchIsRightButton();
     bool event(QEvent* e);
-    QRect getContentsRect();
+    QRect getStyledContentsRect(QStyleOption* option = 0);
 
     enum Qt::MouseButton m_activeTouchButton;
 

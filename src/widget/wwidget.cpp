@@ -97,10 +97,13 @@ bool WWidget::event(QEvent* e) {
     return QWidget::event(e);
 }
 
-QRect WWidget::getContentsRect() {
-    QStyleOption option;
-    option.initFrom(this);
-    QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+QRect WWidget::getStyledContentsRect(QStyleOption* option) {
+    if (option == 0) {
+        option = new QStyleOption();
+        option->initFrom(this);
+    }
+    
+    QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents, option, this);
     if (contentsRect.isNull()) {
         contentsRect = rect();
     }

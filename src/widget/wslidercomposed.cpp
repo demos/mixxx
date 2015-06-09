@@ -50,6 +50,7 @@ void WSliderComposed::setup(QDomNode node, const SkinContext& context) {
         // compatibility.
         PixmapSource sourceSlider = context.getPixmapSource(slider);
         setSliderPixmap(sourceSlider, context.selectScaleMode(slider, Paintable::FIXED));
+        setFixedSize(sizeHint());
     }
 
     m_dSliderLength = m_bHorizontal ? width() : height();
@@ -88,7 +89,7 @@ void WSliderComposed::setSliderPixmap(PixmapSource sourceSlider,
         qDebug() << "WSliderComposed: Error loading slider pixmap:" << sourceSlider.getPath();
     } else if (drawMode == Paintable::FIXED) {
         // Set size of widget, using size of slider pixmap
-        setFixedSize(m_pSlider->size());
+//        setFixedSize(m_pSlider->size());
     }
 }
 
@@ -135,20 +136,27 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
     option.initFrom(this);
     QStylePainter p(this);
     p.drawPrimitive(QStyle::PE_Widget, option);
-
+    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+    if (contentRect.isNull()) {
+        contentRect = rect();
+    }
+    
     if (!m_pSlider.isNull() && !m_pSlider->isNull()) {
-        m_pSlider->draw(rect(), &p);
+//        m_pSlider->draw(rect(), &p);
+        m_pSlider->draw(contentRect, &p);
     }
 
     if (!m_pHandle.isNull() && !m_pHandle->isNull()) {
         double drawPos = round(m_handler.parameterToPosition(getControlParameterDisplay()));
         if (m_bHorizontal) {
             // The handle's draw mode determines whether it is stretched.
-            QRectF targetRect(drawPos, 0, m_dHandleLength, height());
+            QRectF targetRect(contentRect.x() + drawPos, contentRect.y(),
+                              m_dHandleLength, contentRect.height());
             m_pHandle->draw(targetRect, &p);
         } else {
             // The handle's draw mode determines whether it is stretched.
-            QRectF targetRect(0, drawPos, width(), m_dHandleLength);
+            QRectF targetRect(contentRect.x(), contentRect.y() + drawPos,
+                              contentRect.width(), m_dHandleLength);
             m_pHandle->draw(targetRect, &p);
         }
     }
@@ -156,10 +164,19 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
 
 void WSliderComposed::resizeEvent(QResizeEvent* pEvent) {
     Q_UNUSED(pEvent);
-
+    
+    QStyleOption option;
+    option.initFrom(this);
+//    QStylePainter p(this);
+//    p.drawPrimitive(QStyle::PE_Widget, option);
+    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+    if (contentRect.isNull()) {
+        contentRect = rect();
+    }
+    
     m_dHandleLength = calculateHandleLength();
     m_handler.setHandleLength(m_dHandleLength);
-    m_dSliderLength = m_bHorizontal ? width() : height();
+    m_dSliderLength = m_bHorizontal ? contentRect.width() : contentRect.height();
     m_handler.setSliderLength(m_dSliderLength);
     m_handler.resizeEvent(this, pEvent);
 
@@ -217,4 +234,17 @@ double WSliderComposed::calculateHandleLength() {
         }
     }
     return 0;
+}
+
+QSize WSliderComposed::sizeHint() const {
+    QSize contentSize = WWidget::sizeHint();
+    
+    if (m_pSlider) {
+        contentSize = m_pSlider->size();
+    }
+    
+    QStyleOption option;
+    option.initFrom(this);
+    return style()->sizeFromContents(QStyle::CT_PushButton, &option, contentSize,
+                                     this);
 }

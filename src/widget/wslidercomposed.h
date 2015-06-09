@@ -48,7 +48,8 @@ class WSliderComposed : public WWidget  {
     void setHandlePixmap(bool bHorizontal, PixmapSource sourceHandle,
                          Paintable::DrawMode mode);
     inline bool isHorizontal() const { return m_bHorizontal; };
-
+    QSize sizeHint() const;
+    
   public slots:
     void onConnectedControlChanged(double dParameter, double dValue);
     void fillDebugTooltip(QStringList* debug);

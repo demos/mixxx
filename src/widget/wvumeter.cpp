@@ -169,10 +169,7 @@ void WVuMeter::paintEvent(QPaintEvent *) {
     p.setBrush(option.palette.text());
     p.drawPrimitive(QStyle::PE_Widget, option);
     
-    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
-    if (contentRect.isNull()) {
-        contentRect = rect();
-    }
+    QRect contentRect = getStyledContentsRect(&option);
     
     if (!m_pPixmapBack.isNull() && !m_pPixmapBack->isNull()) {
         // Draw background. DrawMode takes care of whether to stretch or not.

@@ -136,13 +136,9 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
     option.initFrom(this);
     QStylePainter p(this);
     p.drawPrimitive(QStyle::PE_Widget, option);
-    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
-    if (contentRect.isNull()) {
-        contentRect = rect();
-    }
+    QRect contentRect = getStyledContentsRect(&option);
     
     if (!m_pSlider.isNull() && !m_pSlider->isNull()) {
-//        m_pSlider->draw(rect(), &p);
         m_pSlider->draw(contentRect, &p);
     }
 
@@ -165,15 +161,7 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
 void WSliderComposed::resizeEvent(QResizeEvent* pEvent) {
     Q_UNUSED(pEvent);
     
-    QStyleOption option;
-    option.initFrom(this);
-//    QStylePainter p(this);
-//    p.drawPrimitive(QStyle::PE_Widget, option);
-    QRect contentRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
-    if (contentRect.isNull()) {
-        contentRect = rect();
-    }
-    
+    QRect contentRect = getStyledContentsRect();
     m_dHandleLength = calculateHandleLength();
     m_handler.setHandleLength(m_dHandleLength);
     m_dSliderLength = m_bHorizontal ? contentRect.width() : contentRect.height();

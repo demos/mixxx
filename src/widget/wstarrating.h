@@ -9,9 +9,9 @@
 #include "trackinfoobject.h"
 
 #include "library/starrating.h"
-#include "widget/wwidget.h"
+#include "widget/wbasewidget.h"
 
-class WStarRating : public WWidget {
+class WStarRating : public QWidget, public WBaseWidget {
     Q_OBJECT
   public:
     WStarRating(QString group, QWidget* pParent);
@@ -28,10 +28,12 @@ class WStarRating : public WWidget {
     void updateRating(TrackInfoObject*);
     
   protected:
+    virtual bool event(QEvent* pEvent);
     virtual void paintEvent(QPaintEvent* e);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void leaveEvent(QEvent *);
+    void fillDebugTooltip(QStringList* debug);
     
     StarRating m_starRating;
     QString m_pGroup;

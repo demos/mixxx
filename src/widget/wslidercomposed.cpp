@@ -50,7 +50,6 @@ void WSliderComposed::setup(QDomNode node, const SkinContext& context) {
         // compatibility.
         PixmapSource sourceSlider = context.getPixmapSource(slider);
         setSliderPixmap(sourceSlider, context.selectScaleMode(slider, Paintable::FIXED));
-        setFixedSize(sizeHint());
     }
 
     m_dSliderLength = m_bHorizontal ? width() : height();
@@ -143,6 +142,7 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
     }
 
     if (!m_pHandle.isNull() && !m_pHandle->isNull()) {
+        // Slider position rounded, verify this for HiDPI : bug 1479037
         double drawPos = round(m_handler.parameterToPosition(getControlParameterDisplay()));
         if (m_bHorizontal) {
             // The handle's draw mode determines whether it is stretched.
@@ -222,17 +222,4 @@ double WSliderComposed::calculateHandleLength() {
         }
     }
     return 0;
-}
-
-QSize WSliderComposed::sizeHint() const {
-    QSize contentSize = WWidget::sizeHint();
-    
-    if (m_pSlider) {
-        contentSize = m_pSlider->size();
-    }
-    
-    QStyleOption option;
-    option.initFrom(this);
-    return style()->sizeFromContents(QStyle::CT_PushButton, &option, contentSize,
-                                     this);
 }

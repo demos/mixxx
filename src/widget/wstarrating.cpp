@@ -68,7 +68,7 @@ void WStarRating::updateRating(TrackInfoObject*) {
     updateRating();
 }
 
-void WStarRating::paintEvent(QPaintEvent *) {
+void WStarRating::paintEvent(QPaintEvent * pEvent) {
     QStyleOption option;
     option.initFrom(this);
     QStylePainter painter(this);

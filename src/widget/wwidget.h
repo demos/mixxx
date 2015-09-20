@@ -18,7 +18,7 @@
 #ifndef WWIDGET_H
 #define WWIDGET_H
 
-#include <QWidget>
+#include <QFrame>
 #include <QEvent>
 #include <QString>
 
@@ -37,7 +37,7 @@ class ControlObjectSlave;
   *@author Tue & Ken Haste Andersen
   */
 
-class WWidget : public QWidget, public WBaseWidget {
+class WWidget : public QFrame, public WBaseWidget {
    Q_OBJECT
   public:
     WWidget(QWidget *parent=0, Qt::WindowFlags flags=0);

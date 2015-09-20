@@ -23,7 +23,7 @@
 #include "util/assert.h"
 
 WWidget::WWidget(QWidget* parent, Qt::WindowFlags flags)
-        : QWidget(parent, flags),
+        : QFrame(parent, flags),
           WBaseWidget(this),
           m_activeTouchButton(Qt::NoButton) {
     m_pTouchShift = new ControlObjectSlave("[Controls]", "touch_shift");

@@ -3,6 +3,7 @@
 
 
 #include <ostream>
+#include <utility>
 
 #include <QString>
 #include <QVariant>
@@ -94,8 +95,8 @@ public:
         return os << dbId.m_value;
     }
 
-    friend QDebug& operator<<(QDebug& qDebug, const DbId& dbId) {
-        return qDebug << dbId.m_value;
+    friend QDebug& operator<<(QDebug& qdebug, const DbId& dbId) {
+        return qdebug << dbId.m_value;
     }
 
     friend uint qHash(const DbId& dbId) {

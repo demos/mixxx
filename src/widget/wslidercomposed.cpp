@@ -87,8 +87,8 @@ void WSliderComposed::setSliderPixmap(PixmapSource sourceSlider,
     if (!m_pSlider) {
         qDebug() << "WSliderComposed: Error loading slider pixmap:" << sourceSlider.getPath();
     } else if (drawMode == Paintable::FIXED) {
-        // Set size of widget, using size of slider pixmap
-        setFixedSize(m_pSlider->size());
+        // Set size of the content, using size of slider pixmap
+        m_contentsSize = m_pSlider->size();
     }
 }
 
@@ -131,13 +131,12 @@ void WSliderComposed::mousePressEvent(QMouseEvent * e) {
 }
 
 void WSliderComposed::paintEvent(QPaintEvent *) {
-    QStyleOption option;
-    option.initFrom(this);
     QStylePainter p(this);
-    p.drawPrimitive(QStyle::PE_Widget, option);
+
+    QRect contentsRect = getContentsRect();
 
     if (!m_pSlider.isNull() && !m_pSlider->isNull()) {
-        m_pSlider->draw(rect(), &p);
+        m_pSlider->draw(contentsRect, &p);
     }
 
     if (!m_pHandle.isNull() && !m_pHandle->isNull()) {
@@ -145,11 +144,11 @@ void WSliderComposed::paintEvent(QPaintEvent *) {
         double drawPos = round(m_handler.parameterToPosition(getControlParameterDisplay()));
         if (m_bHorizontal) {
             // The handle's draw mode determines whether it is stretched.
-            QRectF targetRect(drawPos, 0, m_dHandleLength, height());
+            QRectF targetRect(contentsRect.left() + drawPos, contentsRect.top(), m_dHandleLength, contentsRect.height());
             m_pHandle->draw(targetRect, &p);
         } else {
             // The handle's draw mode determines whether it is stretched.
-            QRectF targetRect(0, drawPos, width(), m_dHandleLength);
+            QRectF targetRect(contentsRect.left(), contentsRect.top() + drawPos, contentsRect.width(), m_dHandleLength);
             m_pHandle->draw(targetRect, &p);
         }
     }
@@ -160,7 +159,7 @@ void WSliderComposed::resizeEvent(QResizeEvent* pEvent) {
 
     m_dHandleLength = calculateHandleLength();
     m_handler.setHandleLength(m_dHandleLength);
-    m_dSliderLength = m_bHorizontal ? width() : height();
+    m_dSliderLength = m_bHorizontal ? m_contentsSize.width() : m_contentsSize.height();
     m_handler.setSliderLength(m_dSliderLength);
     m_handler.resizeEvent(this, pEvent);
 
@@ -219,3 +218,4 @@ double WSliderComposed::calculateHandleLength() {
     }
     return 0;
 }
+

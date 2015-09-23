@@ -105,9 +105,9 @@ QSize WWidget::sizeHint() const {
     if (!m_contentsSize.isNull()) {
         // CT_Slider is the simplest sizeFromContents : the given size
         // with the box size if it has borders/box or geometry.
-        // The reference doesn't provide any good explanation for sizeFromContents
-        // so you would read QCommonStyle and QStyleSheetStyle sources to understand
-        // what Qt does.
+        // The reference doesn't provide any good explanation for
+        // sizeFromContents so you would read QCommonStyle and QStyleSheetStyle
+        // sources to understand what Qt does.
         QStyleOption option;
         option.initFrom(this);
         widgetSize = style()->sizeFromContents(QStyle::CT_Slider, &option,
@@ -121,7 +121,8 @@ QRect WWidget::getContentsRect() const {
 
     QStyleOption option;
     option.initFrom(this);
-    QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents, &option, this);
+    QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents,
+                                                 &option, this);
     if (contentsRect.isNull()) {
         contentsRect = QRect(QPoint(0,0), m_contentsSize);
     }

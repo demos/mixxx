@@ -44,10 +44,13 @@ class WWidget : public QFrame, public WBaseWidget {
     virtual ~WWidget();
 
     Q_PROPERTY(double value READ getControlParameterDisplay);
+    QSize sizeHint() const;
 
   protected:
     bool touchIsRightButton();
     bool event(QEvent* e);
+    QSize m_contentsSize;
+    QRect getContentsRect() const;
 
     enum Qt::MouseButton m_activeTouchButton;
 

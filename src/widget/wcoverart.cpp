@@ -4,7 +4,6 @@
 #include <QLabel>
 #include <QIcon>
 #include <QStylePainter>
-#include <QStyleOption>
 
 #include "controlobject.h"
 #include "widget/wcoverart.h"
@@ -17,8 +16,7 @@
 WCoverArt::WCoverArt(QWidget* parent,
                      ConfigObject<ConfigValue>* pConfig,
                      const QString& group)
-        : QWidget(parent),
-          WBaseWidget(this),
+        : WWidget(parent),
           m_group(group),
           m_pConfig(pConfig),
           m_bEnable(true),
@@ -175,14 +173,11 @@ QPixmap WCoverArt::scaledCoverArt(const QPixmap& normal) {
     if (normal.isNull()) {
         return QPixmap();
     }
-    return normal.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    return normal.scaled(getContentsRect().size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
 
 void WCoverArt::paintEvent(QPaintEvent*) {
-    QStyleOption option;
-    option.initFrom(this);
     QStylePainter painter(this);
-    painter.drawPrimitive(QStyle::PE_Widget, option);
 
     if (!m_bEnable) {
         return;
@@ -194,12 +189,11 @@ void WCoverArt::paintEvent(QPaintEvent*) {
     }
 
     if (!toDraw.isNull()) {
-        QSize widgetSize = size();
-        QSize pixmapSize = toDraw.size();
+        QRect contentsRect = getContentsRect();
 
-        int x = math_max(0, (widgetSize.width() - pixmapSize.width()) / 2);
-        int y = math_max(0, (widgetSize.height() - pixmapSize.height()) / 2);
-        painter.drawPixmap(x, y, toDraw);
+        int x = math_max(0, (contentsRect.width() - toDraw.width()) / 2);
+        int y = math_max(0, (contentsRect.height() - toDraw.height()) / 2);
+        painter.drawPixmap(contentsRect.x() + x, contentsRect.y() + y, toDraw);
     }
 }
 

@@ -124,7 +124,11 @@ QRect WWidget::getContentsRect() const {
     QRect contentsRect = style()->subElementRect(QStyle::SE_FrameContents,
                                                  &option, this);
     if (contentsRect.isNull()) {
-        contentsRect = QRect(QPoint(0,0), m_contentsSize);
+        if (m_contentsSize.isEmpty()){
+            contentsRect = rect();
+        } else {
+            contentsRect = QRect(QPoint(0,0), m_contentsSize);
+        }
     }
 
     return contentsRect;

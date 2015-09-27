@@ -11,10 +11,10 @@
 #include "trackinfoobject.h"
 #include "library/coverartcache.h"
 #include "skin/skincontext.h"
-#include "widget/wbasewidget.h"
+#include "widget/wwidget.h"
 #include "widget/wcoverartmenu.h"
 
-class WCoverArt : public QWidget, public WBaseWidget {
+class WCoverArt : public WWidget {
     Q_OBJECT
   public:
     WCoverArt(QWidget* parent, ConfigObject<ConfigValue>* pConfig,

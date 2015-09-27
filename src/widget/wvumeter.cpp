@@ -18,7 +18,6 @@
 #include "widget/wvumeter.h"
 
 #include <QStylePainter>
-#include <QStyleOption>
 #include <QPaintEvent>
 #include <QtDebug>
 #include <QPixmap>
@@ -94,7 +93,7 @@ void WVuMeter::setPixmapBackground(PixmapSource source, Paintable::DrawMode mode
         qDebug() << metaObject()->className()
                  << "Error loading background pixmap:" << source.getPath();
     } else if (mode == Paintable::FIXED) {
-        setFixedSize(m_pPixmapBack->size());
+        m_contentsSize = m_pPixmapBack->size();
     }
 }
 
@@ -162,27 +161,26 @@ void WVuMeter::maybeUpdate() {
 void WVuMeter::paintEvent(QPaintEvent *) {
     ScopedTimer t("WVuMeter::paintEvent");
 
-    QStyleOption option;
-    option.initFrom(this);
     QStylePainter p(this);
-    p.drawPrimitive(QStyle::PE_Widget, option);
+    QRect contentsRect = getContentsRect();
 
     if (!m_pPixmapBack.isNull() && !m_pPixmapBack->isNull()) {
         // Draw background. DrawMode takes care of whether to stretch or not.
-        m_pPixmapBack->draw(rect(), &p);
+        m_pPixmapBack->draw(contentsRect, &p);
     }
 
     if (!m_pPixmapVu.isNull() && !m_pPixmapVu->isNull()) {
-        const double widgetWidth = width();
-        const double widgetHeight = height();
+        const double contentsWidth = contentsRect.width();
+        const double contentsHeight = contentsRect.height();
         const double pixmapWidth = m_pPixmapVu->width();
         const double pixmapHeight = m_pPixmapVu->height();
 
         // Draw (part of) vu
         if (m_bHorizontal) {
-            const double widgetPosition = math_clamp(widgetWidth * m_dParameter,
-                                                     0.0, widgetWidth);
-            QRectF targetRect(0, 0, widgetPosition, widgetHeight);
+            const double widgetPosition = math_clamp(contentsWidth * m_dParameter,
+                                                     0.0, contentsWidth);
+            QRectF targetRect(contentsRect.x(), contentsRect.y(),
+                              widgetPosition, contentsHeight);
 
             const double pixmapPosition = math_clamp(pixmapWidth * m_dParameter,
                                                      0.0, pixmapWidth);
@@ -191,25 +189,26 @@ void WVuMeter::paintEvent(QPaintEvent *) {
 
             if (m_iPeakHoldSize > 0 && m_dPeakParameter > 0.0) {
                 const double widgetPeakPosition = math_clamp(
-                        widgetWidth * m_dPeakParameter, 0.0, widgetWidth);
-                const double widgetPeakHoldSize = widgetWidth *
+                        contentsWidth * m_dPeakParameter, 0.0, contentsWidth);
+                const double widgetPeakHoldSize = contentsWidth *
                         static_cast<double>(m_iPeakHoldSize) / pixmapWidth;
 
                 const double pixmapPeakPosition = math_clamp(
                         pixmapWidth * m_dPeakParameter, 0.0, pixmapWidth);
                 const double pixmapPeakHoldSize = m_iPeakHoldSize;
 
-                targetRect = QRectF(widgetPeakPosition - widgetPeakHoldSize, 0,
-                                    widgetPeakHoldSize, widgetHeight);
+                targetRect = QRectF(contentsRect.x() + widgetPeakPosition
+                                    - widgetPeakHoldSize, contentsRect.y(),
+                                    widgetPeakHoldSize, contentsHeight);
                 sourceRect = QRectF(pixmapPeakPosition - pixmapPeakHoldSize, 0,
                                     pixmapPeakHoldSize, pixmapHeight);
                 m_pPixmapVu->draw(targetRect, &p, sourceRect);
             }
         } else {
-            const double widgetPosition = math_clamp(widgetHeight * m_dParameter,
-                                                     0.0, widgetHeight);
-            QRectF targetRect(0, widgetHeight - widgetPosition,
-                              widgetWidth, widgetPosition);
+            const double widgetPosition = math_clamp(contentsHeight * m_dParameter,
+                                                     0.0, contentsHeight);
+            QRectF targetRect(contentsRect.x(), contentsRect.y() + contentsHeight
+                              - widgetPosition, contentsWidth, widgetPosition);
 
             const double pixmapPosition = math_clamp(pixmapHeight * m_dParameter,
                                                      0.0, pixmapHeight);
@@ -219,16 +218,17 @@ void WVuMeter::paintEvent(QPaintEvent *) {
 
             if (m_iPeakHoldSize > 0 && m_dPeakParameter > 0.0) {
                 const double widgetPeakPosition = math_clamp(
-                        widgetHeight * m_dPeakParameter, 0.0, widgetHeight);
-                const double widgetPeakHoldSize = widgetHeight *
+                        contentsHeight * m_dPeakParameter, 0.0, contentsHeight);
+                const double widgetPeakHoldSize = contentsHeight *
                         static_cast<double>(m_iPeakHoldSize) / pixmapHeight;
 
                 const double pixmapPeakPosition = math_clamp(
                         pixmapHeight * m_dPeakParameter, 0.0, pixmapHeight);
                 const double pixmapPeakHoldSize = m_iPeakHoldSize;
 
-                targetRect = QRectF(0, widgetHeight - widgetPeakPosition,
-                                    widgetWidth, widgetPeakHoldSize);
+                targetRect = QRectF(contentsRect.x(), contentsRect.y()
+                                    + contentsHeight - widgetPeakPosition,
+                                    contentsWidth, widgetPeakHoldSize);
                 sourceRect = QRectF(0, pixmapHeight - pixmapPeakPosition,
                                     pixmapWidth, pixmapPeakHoldSize);
                 m_pPixmapVu->draw(targetRect, &p, sourceRect);

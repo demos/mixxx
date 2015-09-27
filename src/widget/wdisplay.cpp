@@ -117,7 +117,7 @@ void WDisplay::setPixmap(QVector<PaintablePointer>* pPixmaps, int iPos,
     } else {
         (*pPixmaps)[iPos] = pPixmap;
         if (mode == Paintable::FIXED) {
-            setFixedSize(pPixmap->size());
+            m_contentsSize = pPixmap->size();
         }
     }
 }
@@ -178,7 +178,7 @@ void WDisplay::paintEvent(QPaintEvent*) {
     p.drawPrimitive(QStyle::PE_Widget, option);
 
     if (m_pPixmapBack) {
-        m_pPixmapBack->draw(rect(), &p);
+        m_pPixmapBack->draw(getContentsRect(), &p);
     }
 
     // If we are disabled, use the disabled pixmaps. If not, use the regular
@@ -205,6 +205,6 @@ void WDisplay::paintEvent(QPaintEvent*) {
 
     PaintablePointer pPixmap = pixmaps[idx];
     if (pPixmap) {
-        pPixmap->draw(rect(), &p);
+        pPixmap->draw(getContentsRect(), &p);
     }
 }

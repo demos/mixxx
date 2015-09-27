@@ -20,7 +20,6 @@
 
 #include <QPaintEvent>
 #include <QStylePainter>
-#include <QStyleOption>
 #include <QtDebug>
 #include <QPixmap>
 
@@ -83,7 +82,7 @@ void WStatusLight::setPixmap(int iState, PixmapSource source,
     if (!pPixmap.isNull() && !pPixmap->isNull()) {
         m_pixmaps[iState] = pPixmap;
         if (mode == Paintable::FIXED) {
-            setFixedSize(pPixmap->size());
+            m_contentsSize = pPixmap->size();
         }
     } else {
         qDebug() << "WStatusLight: Error loading pixmap:" << source.getPath() << iState;
@@ -115,10 +114,7 @@ void WStatusLight::onConnectedControlChanged(double dParameter, double dValue) {
 }
 
 void WStatusLight::paintEvent(QPaintEvent *) {
-    QStyleOption option;
-    option.initFrom(this);
     QStylePainter p(this);
-    p.drawPrimitive(QStyle::PE_Widget, option);
 
     if (m_iPos < 0 || m_iPos >= m_pixmaps.size()) {
         return;
@@ -130,5 +126,5 @@ void WStatusLight::paintEvent(QPaintEvent *) {
         return;
     }
 
-    pPixmap->draw(rect(), &p);
+    pPixmap->draw(getContentsRect(), &p);
 }

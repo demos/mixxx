@@ -67,7 +67,6 @@ SoundSourceMediaFoundation::SoundSourceMediaFoundation(QUrl url)
           m_hrCoInitialize(E_FAIL),
           m_hrMFStartup(E_FAIL),
           m_pReader(NULL),
-          m_wcFilename(NULL),
           m_nextFrame(0),
           m_leftoverBuffer(NULL),
           m_leftoverBufferSize(0),
@@ -109,15 +108,13 @@ Result SoundSourceMediaFoundation::tryOpen(const AudioSourceConfig& audioSrcCfg)
         return ERR;
     }
 
-    // http://social.msdn.microsoft.com/Forums/en/netfxbcl/thread/35c6a451-3507-40c8-9d1c-8d4edde7c0cc
-    // gives maximum path + file length as 248 + 260, using that -bkgood
-    m_wcFilename = new wchar_t[248 + 260];
-    int wcFilenameLength(fileName.toWCharArray(m_wcFilename));
-    // toWCharArray does not append a null terminator to the string!
-    m_wcFilename[wcFilenameLength] = '\0';
-
     // Create the source reader to read the input file.
-    HRESULT hr = MFCreateSourceReaderFromURL(m_wcFilename, NULL, &m_pReader);
+    static_assert(sizeof(wchar_t) == sizeof(QChar), "wchar_t is not the same size than QChar");
+    hr = MFCreateSourceReaderFromURL(
+            (wchar_t*)getFilename().utf16(),
+            NULL,
+            &m_pReader);
+
     if (FAILED(hr)) {
         qWarning() << "SSMF: Error opening input file:" << fileName;
         return ERR;

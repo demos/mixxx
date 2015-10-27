@@ -16,7 +16,10 @@ Result SoundSourceSndFile::tryOpen(const AudioSourceConfig& /*audioSrcCfg*/) {
     SF_INFO sfInfo;
     memset(&sfInfo, 0, sizeof(sfInfo));
 #ifdef __WINDOWS__
-    m_pSndFile = sf_wchar_open(fileName.toStdWString().c_str(), SFM_READ, &sfInfo);
+    static_assert(sizeof(wchar_t) == sizeof(QChar), "wchar_t is not the same size than QChar");
+    m_pSndFile = sf_wchar_open(fileName.utf16(), SFM_READ, &sfInfo);
+    // Note: we cannot use QString::toStdWString since QT 4 is compiled with
+    // '/Zc:wchar_t-' flag and QT 5 not
 #else
     m_pSndFile = sf_open(getLocalFileName().toLocal8Bit(), SFM_READ, &sfInfo);
 #endif

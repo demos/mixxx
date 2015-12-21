@@ -8,6 +8,7 @@
  */
 
 #include "controllers/midi/portmidicontroller.h"
+#include "controllers/controllerdebug.h"
 
 PortMidiController::PortMidiController(const PmDeviceInfo* inputDeviceInfo,
                                        const PmDeviceInfo* outputDeviceInfo,
@@ -31,18 +32,24 @@ PortMidiController::PortMidiController(const PmDeviceInfo* inputDeviceInfo,
     // Note: We prepend the input stream's index to the device's name to prevent
     // duplicate devices from causing mayhem.
     //setDeviceName(QString("%1. %2").arg(QString::number(m_iInputDeviceIndex), inputDeviceInfo->name));
-    setDeviceName(QString("%1").arg(inputDeviceInfo->name));
 
     if (m_pInputDeviceInfo) {
+        setDeviceName(QString("%1").arg(m_pInputDeviceInfo->name));
         setInputDevice(m_pInputDeviceInfo->input);
     }
     if (m_pOutputDeviceInfo) {
+        // In the event of an output-only device, use the output device name.
+        if (m_pInputDeviceInfo == NULL) {
+            setDeviceName(QString("%1").arg(m_pOutputDeviceInfo->name));
+        }
         setOutputDevice(m_pOutputDeviceInfo->output);
     }
 }
 
 PortMidiController::~PortMidiController() {
-    close();
+    if (isOpen()) {
+        close();
+    }
 }
 
 int PortMidiController::open() {
@@ -65,11 +72,9 @@ int PortMidiController::open() {
 
     if (m_pInputDeviceInfo) {
         if (isInputDevice()) {
-            if (debugging()) {
-                qDebug() << "PortMidiController: Opening"
+            controllerDebug("PortMidiController: Opening"
                          << m_pInputDeviceInfo->name << "index"
-                         << m_iInputDeviceIndex << "for input";
-            }
+                         << m_iInputDeviceIndex << "for input");
 
             err = Pm_OpenInput(&m_pInputStream,
                                m_iInputDeviceIndex,
@@ -86,11 +91,9 @@ int PortMidiController::open() {
     }
     if (m_pOutputDeviceInfo) {
         if (isOutputDevice()) {
-            if (debugging()) {
-                qDebug() << "PortMidiController: Opening"
+            controllerDebug("PortMidiController: Opening"
                          << m_pOutputDeviceInfo->name << "index"
-                         << m_iOutputDeviceIndex << "for output";
-            }
+                         << m_iOutputDeviceIndex << "for output");
 
             err = Pm_OpenOutput(&m_pOutputStream,
                                 m_iOutputDeviceIndex,

@@ -13,6 +13,7 @@
 #include <QSet>
 #include <QXmlStreamReader>
 #include <QUrl>
+#include <QDebug>
 
 #include "musicbrainzclient.h"
 
@@ -33,10 +34,16 @@ void MusicBrainzClient::start(int id, const QString& mbid) {
     parameters << Param("inc", "artists+releases+media");
 
     QUrl url(m_TrackUrl + mbid);
-    url.setQueryItems(parameters);
-    QNetworkRequest req(url);
 
+
+    url.setQueryItems(parameters);
+	qDebug() << "Musicbrainz url : " << url;
+    QNetworkRequest req(url);
+	// todo(jclaveau) version
+	req.setRawHeader("User-Agent", "Mixxx/1.12 ( http://mixxx.org )");
     QNetworkReply* reply = m_network.get(req);
+	qDebug() << "Musicbrainz header : " << req.rawHeader("User-Agent");
+
     connect(reply, SIGNAL(finished()), SLOT(requestFinished()));
     m_requests[reply] = id;
 
@@ -66,6 +73,10 @@ void MusicBrainzClient::requestFinished() {
     int id = m_requests.take(reply);
     ResultList ret;
 
+	QByteArray replyContent = reply->readAll();
+	qDebug() << "Musicbrainz reply : " << replyContent;
+	qDebug() << "Musicbrainz reply : " << replyContent;
+
     if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() != 200) {
         emit(networkError(
              reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(),
@@ -73,10 +84,13 @@ void MusicBrainzClient::requestFinished() {
         return;
     }
 
-    QXmlStreamReader reader(reply);
+
+    QXmlStreamReader reader(replyContent);
     while (!reader.atEnd()) {
+		qDebug() << "Musicbrainz start parsing";
         if (reader.readNext() == QXmlStreamReader::StartElement
             && reader.name() == "recording") {
+			qDebug() << "Musicbrainz found recording";
 
             ResultList tracks = parseTrack(reader);
             foreach (const Result& track, tracks) {

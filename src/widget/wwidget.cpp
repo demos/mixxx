@@ -99,7 +99,8 @@ bool WWidget::event(QEvent* e) {
     return QWidget::event(e);
 }
 
-QSize WWidget::sizeHint() const {
+//QSize WWidget::sizeHint() const {
+QSize WWidget::minimumSizeHint() const {
     QSize widgetSize = QFrame::sizeHint();
 
     if (!m_contentsSize.isNull()) {

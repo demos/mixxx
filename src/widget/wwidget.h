@@ -44,7 +44,7 @@ class WWidget : public QFrame, public WBaseWidget {
     virtual ~WWidget();
 
     Q_PROPERTY(double value READ getControlParameterDisplay);
-    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
   protected:
     bool touchIsRightButton();

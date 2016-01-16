@@ -23,6 +23,7 @@ void WKnobComposed::setup(QDomNode node, const SkinContext& context) {
     if (context.hasNode(node, "BackPath")) {
         QDomElement backPathElement = context.selectElement(node, "BackPath");
         setPixmapBackground(context.getPixmapSource(backPathElement),
+//                            context.selectScaleMode(backPathElement, Paintable::FIXED));
                             context.selectScaleMode(backPathElement, Paintable::STRETCH));
     }
 
@@ -30,6 +31,7 @@ void WKnobComposed::setup(QDomNode node, const SkinContext& context) {
     if (context.hasNode(node, "Knob")) {
         QDomElement knobNode = context.selectElement(node, "Knob");
         setPixmapKnob(context.getPixmapSource(knobNode),
+//                      context.selectScaleMode(knobNode, Paintable::FIXED));
                       context.selectScaleMode(knobNode, Paintable::STRETCH));
     }
 
@@ -62,6 +64,7 @@ void WKnobComposed::setPixmapBackground(PixmapSource source,
         qDebug() << metaObject()->className()
                  << "Error loading background pixmap:" << source.getPath();
     }
+    m_contentsSize = m_pPixmapBack->size();
 }
 
 void WKnobComposed::setPixmapKnob(PixmapSource source,
@@ -88,21 +91,20 @@ void WKnobComposed::onConnectedControlChanged(double dParameter, double dValue) 
 
 void WKnobComposed::paintEvent(QPaintEvent* e) {
     Q_UNUSED(e);
-    QStyleOption option;
-    option.initFrom(this);
     QStylePainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
-    p.drawPrimitive(QStyle::PE_Widget, option);
+    QRect contentsRect = getContentsRect();
 
     if (m_pPixmapBack) {
-        m_pPixmapBack->draw(rect(), &p, m_pPixmapBack->rect());
+//        m_pPixmapBack->draw(contentsRect, &p, m_pPixmapBack->rect());
+        m_pPixmapBack->draw(contentsRect, &p);
     }
 
     QTransform transform;
     if (!m_pKnob.isNull() && !m_pKnob->isNull()) {
-        qreal tx = m_dKnobCenterXOffset + width() / 2.0;
-        qreal ty = m_dKnobCenterYOffset + height() / 2.0;
+        qreal tx = contentsRect.x() + m_dKnobCenterXOffset + contentsRect.width() / 2.0;
+        qreal ty = contentsRect.y() + m_dKnobCenterYOffset + contentsRect.height() / 2.0;
         transform.translate(-tx, -ty);
         p.translate(tx, ty);
 
@@ -112,8 +114,8 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
         p.rotate(m_dCurrentAngle);
 
         // Need to convert from QRect to a QRectF to avoid losing precison.
-        QRectF targetRect = rect();
-        m_pKnob->drawCentered(transform.mapRect(targetRect), &p,
+//        m_pKnob->drawCentered(transform.mapRect(contentsRect), &p,
+        m_pKnob->drawCentered(contentsRect, &p,
                               m_pKnob->rect());
     }
 }

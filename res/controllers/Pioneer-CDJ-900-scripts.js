@@ -115,7 +115,6 @@ PioneerCDJ900.tempo_range = function(channel, control, value, status, group) {
 /**
  * Playlist
  */
-
 PioneerCDJ900.playlistMode = false;
 
 PioneerCDJ900.select_turn = function(channel, control, value, status, group) {

@@ -290,10 +290,11 @@
       </control>
       <control>
         <!--touch_brake-->
-        <group>[QuickEffectRack1_[Channel1]]</group>
-        <key>super1</key>
+        <group>[Channel1]</group>
+        <key>PioneerCDJ900.vinyl_speed_adjust</key>
         <status>0XB0</status>
         <midino>0X1E</midino>
+        <options> <script-binding/> </options>
       </control>
 
       <control>
